@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.dictionary.feature_dictionary.domain.entity.DictionaryEntity
+import com.example.dictionary.feature_dictionary.domain.entity.SupportedLanguage
+import com.example.dictionary.feature_dictionary.domain.entity.supportedLanguages
 import com.example.dictionary.feature_dictionary.data.network.NetworkUtil
 import com.example.dictionary.feature_dictionary.domain.repository.DictionaryRepository
 import kotlinx.coroutines.CancellationException
@@ -17,7 +19,8 @@ data class DictionaryUiState(
     val error: String? = null,
     val toastMessage: String? = null,
     val dictionaryWord: DictionaryEntity? = null,
-    val topSuggestion: String = ""
+    val topSuggestion: String = "",
+    val selectedLanguage: SupportedLanguage = supportedLanguages[0]
 )
 
 class DictionaryViewModel(
@@ -30,6 +33,7 @@ class DictionaryViewModel(
 
     fun searchWord(word: String) {
         viewModelScope.launch {
+            val targetLangCode = _state.value.selectedLanguage.code
 
             _state.update {
                 it.copy(
@@ -43,7 +47,7 @@ class DictionaryViewModel(
 
             try {
                 val isOnline = NetworkUtil.isNetworkAvailable(application)
-                val result = repository.searchWord(word)
+                val result = repository.searchWord(word, targetLangCode)
 
                 if (result != null) {
                     _state.update {
@@ -80,6 +84,16 @@ class DictionaryViewModel(
                     )
                 }
             }
+        }
+    }
+
+    fun selectLanguage(language: SupportedLanguage) {
+        _state.update {
+            it.copy(selectedLanguage = language)
+        }
+        val currentWord = _state.value.dictionaryWord?.word
+        if (!currentWord.isNullOrBlank()) {
+            searchWord(currentWord)
         }
     }
 

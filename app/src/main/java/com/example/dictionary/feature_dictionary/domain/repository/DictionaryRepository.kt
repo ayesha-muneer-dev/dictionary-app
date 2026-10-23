@@ -6,7 +6,7 @@ interface DictionaryRepository {
 
     suspend fun getAllWords(): List<DictionaryEntity>
 
-    suspend fun searchWord(word: String): DictionaryEntity?
+    suspend fun searchWord(word: String, targetLangCode: String = "ur"): DictionaryEntity?
 
     suspend fun insertWord(word: DictionaryEntity)
 

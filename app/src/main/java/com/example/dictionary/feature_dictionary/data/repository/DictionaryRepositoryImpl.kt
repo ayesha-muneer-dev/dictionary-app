@@ -56,7 +56,7 @@ class DictionaryRepositoryImpl(
         return suggestions.distinct().take(5)
     }
 
-    override suspend fun searchWord(word: String): DictionaryEntity? = supervisorScope {
+    override suspend fun searchWord(word: String, targetLangCode: String): DictionaryEntity? = supervisorScope {
         val query = word.trim().lowercase()
         if (query.isBlank()) return@supervisorScope null
 
@@ -171,7 +171,7 @@ class DictionaryRepositoryImpl(
         }
 
         try {
-            val url = "https://api.mymemory.translated.net/get?q=$query&langpair=en|ur"
+            val url = "https://api.mymemory.translated.net/get?q=$query&langpair=en|$targetLangCode"
             Log.d("DictionaryRepo", "Fetching MyMemory URL: $url")
             val responseObj = NetworkClient.httpClient.get(url)
             if (responseObj.status.value == 200) {

@@ -12,6 +12,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.dictionary.feature_dictionary.domain.entity.supportedLanguages
 import com.example.dictionary.feature_dictionary.domain.view_model.DictionaryViewModel
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
@@ -103,7 +106,33 @@ fun DictionaryScreen(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Multi-Language Selection Chips
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items(supportedLanguages) { lang ->
+                    val isSelected = lang.code == state.selectedLanguage.code
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = {
+                            viewModel.selectLanguage(lang)
+                        },
+                        label = {
+                            Text("${lang.flag} ${lang.name}")
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
 
             OutlinedTextField(
                 value = searchText,
@@ -241,7 +270,7 @@ fun DictionaryScreen(
                                 }
                                 IconButton(
                                     onClick = {
-                                        val textToCopy = "Word: ${word.word}\nMeaning: ${word.meaning}\nUrdu: ${word.urduMeaning}"
+                                        val textToCopy = "Word: ${word.word}\nMeaning: ${word.meaning}\n${state.selectedLanguage.name}: ${word.urduMeaning}"
                                         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                                         val clip = ClipData.newPlainText("Dictionary Word", textToCopy)
                                         clipboard.setPrimaryClip(clip)
@@ -256,7 +285,7 @@ fun DictionaryScreen(
 
                                 IconButton(
                                     onClick = {
-                                        val shareText = "Word: ${word.word}\nMeaning: ${word.meaning}\nUrdu: ${word.urduMeaning}"
+                                        val shareText = "Word: ${word.word}\nMeaning: ${word.meaning}\n${state.selectedLanguage.name}: ${word.urduMeaning}"
                                         val sendIntent = Intent().apply {
                                             action = Intent.ACTION_SEND
                                             putExtra(Intent.EXTRA_TEXT, shareText)
@@ -313,13 +342,13 @@ fun DictionaryScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Text(
-                            text = "Urdu Meaning",
+                            text = "${state.selectedLanguage.name} Meaning (${state.selectedLanguage.flag})",
                             style = MaterialTheme.typography.titleMedium
                         )
 
                         Text(
                             text = word.urduMeaning.ifBlank {
-                                "Urdu meaning not available"
+                                "${state.selectedLanguage.name} meaning not available"
                             }
                         )
 

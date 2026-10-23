@@ -71,6 +71,7 @@ class DictionaryRepositoryImpl(
         var example = ""
         var synonyms = ""
         var urduMeaning = ""
+        var rhymingWords = ""
 
         try {
             val url = "${NetworkUtil.BASE_URL}entries/en/$query"
@@ -170,6 +171,30 @@ class DictionaryRepositoryImpl(
             }
         }
 
+        // Fetch Live Rhyming Words from Datamuse Server API
+        try {
+            val rhymeUrl = "https://api.datamuse.com/words?rel_rhy=$query&max=8"
+            Log.d("DictionaryRepo", "Fetching Rhymes URL: $rhymeUrl")
+            val responseObj = NetworkClient.httpClient.get(rhymeUrl)
+            if (responseObj.status.value == 200) {
+                val json = responseObj.bodyAsText()
+                val element = Json.parseToJsonElement(json)
+                if (element is JsonArray && element.isNotEmpty()) {
+                    val rhymesList = mutableListOf<String>()
+                    element.forEach { item ->
+                        val obj = item as? JsonObject
+                        val rWord = obj?.get("word").asString()
+                        if (rWord.isNotBlank()) rhymesList.add(rWord)
+                    }
+                    if (rhymesList.isNotEmpty()) {
+                        rhymingWords = rhymesList.take(6).joinToString(", ")
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("DictionaryRepo", "Error in Rhymes API", e)
+        }
+
         try {
             val url = "https://api.mymemory.translated.net/get?q=$query&langpair=en|$targetLangCode"
             Log.d("DictionaryRepo", "Fetching MyMemory URL: $url")
@@ -204,7 +229,8 @@ class DictionaryRepositoryImpl(
             urduMeaning = urduMeaning,
             example = example,
             synonyms = synonyms,
-            isFavorite = false
+            isFavorite = false,
+            rhymingWords = rhymingWords
         )
 
         try {
@@ -224,7 +250,8 @@ class DictionaryRepositoryImpl(
             urduMeaning = word.urduMeaning,
             example = word.example,
             synonyms = word.synonyms,
-            isFavorite = word.isFavorite
+            isFavorite = word.isFavorite,
+            rhymingWords = word.rhymingWords
         )
     }
 

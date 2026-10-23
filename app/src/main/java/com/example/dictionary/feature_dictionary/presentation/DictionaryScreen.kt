@@ -375,6 +375,20 @@ fun DictionaryScreen(
 
                             Text(text = word.synonyms)
                         }
+
+                        if (word.rhymingWords.isNotBlank()) {
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(
+                                text = "Rhyming Words 🎵",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text(
+                                text = word.rhymingWords,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
                     }
                 }
             }

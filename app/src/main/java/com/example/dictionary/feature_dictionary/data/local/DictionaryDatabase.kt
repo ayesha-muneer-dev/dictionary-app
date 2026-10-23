@@ -8,7 +8,7 @@ import com.example.dictionary.feature_dictionary.domain.entity.DictionaryEntity
     entities = [
         DictionaryEntity::class
     ],
-    version = 2
+    version = 3
 )
 abstract class DictionaryDatabase : RoomDatabase() {
 

@@ -14,5 +14,6 @@ data class DictionaryEntity(
     val urduMeaning: String = "",
     val example: String = "",
     val synonyms: String = "",
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val rhymingWords: String = ""
 )

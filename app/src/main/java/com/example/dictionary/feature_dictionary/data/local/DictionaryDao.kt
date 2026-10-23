@@ -12,8 +12,8 @@ interface DictionaryDao {
 
     @Query("""
     INSERT OR REPLACE INTO dictionary_table
-    (word, phonetic, partOfSpeech, meaning, urduMeaning, example, synonyms, isFavorite)
-    VALUES (:word, :phonetic, :partOfSpeech, :meaning, :urduMeaning, :example, :synonyms, :isFavorite)
+    (word, phonetic, partOfSpeech, meaning, urduMeaning, example, synonyms, isFavorite, rhymingWords)
+    VALUES (:word, :phonetic, :partOfSpeech, :meaning, :urduMeaning, :example, :synonyms, :isFavorite, :rhymingWords)
 """)
     suspend fun insertWord(
         word: String,
@@ -23,7 +23,8 @@ interface DictionaryDao {
         urduMeaning: String,
         example: String,
         synonyms: String,
-        isFavorite: Boolean
+        isFavorite: Boolean,
+        rhymingWords: String
     )
 
     @Query("SELECT * FROM dictionary_table WHERE word = :word COLLATE NOCASE LIMIT 1")
